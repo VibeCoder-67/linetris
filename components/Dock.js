@@ -110,7 +110,7 @@ const DEFAULT_ITEMS = [
             </svg>
         ),
         label: "Leaderboard",
-        onClick: () => { },
+        onClick: () => window.location.href = '/leaderboard',
     },
 ];
 
