@@ -6,16 +6,14 @@ use std::sync::Arc;
 
 use async_graphql::{EmptySubscription, Object, Schema};
 use linera_sdk::{
-    graphql::GraphQLMutationRoot, linera_base_types::WithServiceAbi, views::View, Service,
+    graphql::GraphQLMutationRoot, linera_base_types::{AccountOwner, Amount, WithServiceAbi}, views::View, Service,
     ServiceRuntime,
 };
-
-use stake::Operation;
-
+use stake::{LeaderboardEntry, Operation, StakeInfo};
 use self::state::StakeState;
 
 pub struct StakeService {
-    state: StakeState,
+    state: Arc<StakeState>,
     runtime: Arc<ServiceRuntime<Self>>,
 }
 
@@ -33,7 +31,7 @@ impl Service for StakeService {
             .await
             .expect("Failed to load state");
         StakeService {
-            state,
+            state: Arc::new(state),
             runtime: Arc::new(runtime),
         }
     }
@@ -41,7 +39,7 @@ impl Service for StakeService {
     async fn handle_query(&self, query: Self::Query) -> Self::QueryResponse {
         Schema::build(
             QueryRoot {
-                value: *self.state.value.get(),
+                state: self.state.clone(),
             },
             Operation::mutation_root(self.runtime.clone()),
             EmptySubscription,
@@ -53,46 +51,20 @@ impl Service for StakeService {
 }
 
 struct QueryRoot {
-    value: u64,
+    state: Arc<StakeState>,
 }
 
 #[Object]
 impl QueryRoot {
-    async fn value(&self) -> &u64 {
-        &self.value
+    async fn pool_balance(&self) -> Amount {
+        *self.state.pool_balance.get()
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use std::sync::Arc;
+    async fn leaderboard(&self) -> Vec<LeaderboardEntry> {
+        self.state.leaderboard.get().clone()
+    }
 
-    use async_graphql::{Request, Response, Value};
-    use futures::FutureExt as _;
-    use linera_sdk::{util::BlockingWait, views::View, Service, ServiceRuntime};
-    use serde_json::json;
-
-    use super::{StakeService, StakeState};
-
-    #[test]
-    fn query() {
-        let value = 60u64;
-        let runtime = Arc::new(ServiceRuntime::<StakeService>::new());
-        let mut state = StakeState::load(runtime.root_view_storage_context())
-            .blocking_wait()
-            .expect("Failed to read from mock key value store");
-        state.value.set(value);
-
-        let service = StakeService { state, runtime };
-        let request = Request::new("{ value }");
-
-        let response = service
-            .handle_query(request)
-            .now_or_never()
-            .expect("Query should not await anything");
-
-        let expected = Response::new(Value::from_json(json!({"value": 60})).unwrap());
-
-        assert_eq!(response, expected)
+    async fn get_stake(&self, owner: AccountOwner) -> Option<StakeInfo> {
+        self.state.stakers.get(&owner).await.expect("Failed to get stake")
     }
 }

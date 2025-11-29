@@ -1,7 +1,7 @@
-use async_graphql::{Request, Response};
+use async_graphql::{Request, Response, SimpleObject};
 use linera_sdk::{
     graphql::GraphQLMutationRoot,
-    linera_base_types::{ContractAbi, ServiceAbi},
+    linera_base_types::{AccountOwner, Amount, ContractAbi, ServiceAbi, TimeDelta, Timestamp},
 };
 use serde::{Deserialize, Serialize};
 
@@ -19,5 +19,20 @@ impl ServiceAbi for StakeAbi {
 
 #[derive(Debug, Deserialize, Serialize, GraphQLMutationRoot)]
 pub enum Operation {
-    Increment { value: u64 },
+    Stake { amount: Amount },
+    SubmitScore { score: u64 },
+    Distribute,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]
+pub struct StakeInfo {
+    pub amount: Amount,
+    pub timestamp: Timestamp,
+    pub expiry: Timestamp,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]
+pub struct LeaderboardEntry {
+    pub user: AccountOwner,
+    pub score: u64,
 }
