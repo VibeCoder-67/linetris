@@ -95,7 +95,7 @@ export default function Dock({
     const height = useSpring(heightRow, spring);
 
     return (
-        <motion.div style={{ height, scrollbarWidth: 'none' }} className="fixed top-0 left-0 right-0 z-50 flex justify-center mx-2">
+        <motion.div style={{ height, scrollbarWidth: 'none' }} className="fixed top-0 left-0 right-0 z-50 flex justify-center mx-2 pointer-events-none">
             <motion.div
                 onMouseMove={({ pageX }) => {
                     isHovered.set(1);
@@ -105,7 +105,7 @@ export default function Dock({
                     isHovered.set(0);
                     mouseX.set(Infinity);
                 }}
-                className={`${className} absolute top-6 flex items-end w-fit gap-4 rounded-2xl border-white/20 border bg-white/10 backdrop-blur-xl shadow-2xl pb-2 px-4`}
+                className={`${className} absolute top-6 flex items-end w-fit gap-4 rounded-2xl border-white/20 border bg-white/10 backdrop-blur-xl shadow-2xl pb-2 px-4 pointer-events-auto`}
                 style={{ height: panelHeight }}
                 role="toolbar"
                 aria-label="Application dock"
