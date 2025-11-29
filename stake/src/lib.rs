@@ -22,6 +22,7 @@ pub enum Operation {
     Stake { amount: Amount },
     SubmitScore { score: u64 },
     Distribute,
+    AddBalance { amount: Amount },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]

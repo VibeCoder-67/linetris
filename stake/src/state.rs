@@ -12,4 +12,5 @@ pub struct StakeState {
     pub epoch_start: RegisterView<Timestamp>,
     pub epoch_duration: RegisterView<TimeDelta>,
     pub leaderboard: RegisterView<Vec<LeaderboardEntry>>,
+    pub balances: MapView<AccountOwner, Amount>,
 }

@@ -117,6 +117,11 @@ impl Contract for StakeContract {
                     }
                 }
             }
+            Operation::AddBalance { amount } => {
+                let signer = self.runtime.authenticated_signer().expect("Signer required");
+                let current_balance = self.state.balances.get(&signer).await.expect("Failed to get balance").unwrap_or(Amount::ZERO);
+                self.state.balances.insert(&signer, current_balance.saturating_add(amount)).expect("Failed to update balance");
+            }
         }
     }
 
