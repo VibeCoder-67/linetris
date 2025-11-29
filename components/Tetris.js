@@ -262,10 +262,38 @@ const Tetris = () => {
         if (!gameStarted) return;
 
         const updateStage = (prevStage) => {
+            // First flush the stage from the previous render
             const newStage = prevStage.map((row) =>
                 row.map((cell) => (cell[1] === 'clear' ? [0, 'clear'] : cell))
             );
 
+            // Calculate ghost position
+            let ghostY = 0;
+            while (!checkCollision(player, newStage, { x: 0, y: ghostY + 1 })) {
+                ghostY += 1;
+            }
+            const ghostPos = { x: player.pos.x, y: player.pos.y + ghostY };
+
+            // Draw ghost piece
+            player.tetromino.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        const targetY = y + ghostPos.y;
+                        const targetX = x + ghostPos.x;
+                        // Only draw if within bounds (collision check handles logic, but safe access is good)
+                        if (newStage[targetY] && newStage[targetY][targetX]) {
+                            newStage[targetY][targetX] = [
+                                value,
+                                'clear', // Ghost is always 'clear' status so it doesn't lock
+                                player.tetromino.color,
+                                true // Add a flag for ghost
+                            ];
+                        }
+                    }
+                });
+            });
+
+            // Draw player piece
             player.tetromino.shape.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value !== 0) {
@@ -273,6 +301,7 @@ const Tetris = () => {
                             value,
                             `${player.collided ? 'merged' : 'clear'}`,
                             player.tetromino.color,
+                            false // Not a ghost
                         ];
                     }
                 });
@@ -315,8 +344,8 @@ const Tetris = () => {
                         onClick={hold}
                         disabled={!canHold || !gameStarted}
                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${canHold && gameStarted
-                                ? 'bg-white/10 hover:bg-white/20 text-white'
-                                : 'bg-white/5 text-white/30 cursor-not-allowed'
+                            ? 'bg-white/10 hover:bg-white/20 text-white'
+                            : 'bg-white/5 text-white/30 cursor-not-allowed'
                             }`}
                     >
                         Hold (C)
@@ -332,9 +361,9 @@ const Tetris = () => {
                                     key={x}
                                     className="w-full h-full"
                                     style={{
-                                        background: cell[0] === 0 ? 'transparent' : `rgba(${cell[2] || '255,255,255'}, 0.8)`,
-                                        border: cell[0] === 0 ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                                        boxShadow: cell[0] === 0 ? 'none' : `0 0 10px rgba(${cell[2] || '255,255,255'}, 0.5)`,
+                                        background: cell[0] === 0 ? 'transparent' : `rgba(${cell[2] || '255,255,255'}, ${cell[3] ? 0.2 : 0.8})`,
+                                        border: cell[0] === 0 ? 'none' : `1px solid rgba(255,255,255,${cell[3] ? 0.05 : 0.1})`,
+                                        boxShadow: cell[0] === 0 || cell[3] ? 'none' : `0 0 10px rgba(${cell[2] || '255,255,255'}, 0.5)`,
                                     }}
                                 />
                             ))
