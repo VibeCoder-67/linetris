@@ -32,7 +32,9 @@ export default function Leaderboard() {
         <div
             className={`${geistSans.className} ${geistMono.className} flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
         >
-            <ConnectWallet />
+            <div className="fixed top-6 right-6 z-[60]">
+                <ConnectWallet />
+            </div>
             <Dock />
 
             <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl px-4 pointer-events-auto">
