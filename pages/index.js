@@ -19,7 +19,7 @@ export default function Home() {
     <div
       className={`${geistSans.className} ${geistMono.className} flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
     >
-      <div className="fixed top-4 right-4 z-[60]">
+      <div className="fixed top-6 right-6 z-[60]">
         <ConnectWallet />
       </div>
       <Dock />
