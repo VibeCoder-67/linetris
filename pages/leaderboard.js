@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import GridDistortion from "@/components/GridDistortion";
 import Dock from "@/components/Dock";
-import WalletConnect from "@/components/WalletConnect";
+import ConnectWallet from "@/components/ConnectWallet";
 import { motion } from "motion/react";
 
 const geistSans = Geist({
@@ -32,7 +32,7 @@ export default function Leaderboard() {
         <div
             className={`${geistSans.className} ${geistMono.className} flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
         >
-            <WalletConnect />
+            <ConnectWallet />
             <Dock />
 
             <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl px-4 pointer-events-auto">
